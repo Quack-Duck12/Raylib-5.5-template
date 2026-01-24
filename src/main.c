@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include "raylib_colors_plus.h" //Optional
 
 int main(){
     InitWindow(900, 600, "Window");
@@ -8,7 +9,7 @@ int main(){
     while(!WindowShouldClose()){
         BeginDrawing();
 
-            ClearBackground(RAYWHITE);
+            ClearBackground(OFFWHITE); // replace with RAYWHITE if not using raylib_colors_plus.h
 
         EndDrawing();
     }
