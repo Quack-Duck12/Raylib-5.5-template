@@ -25,7 +25,7 @@ make           # Linux or Windows with MSYS/MinGW
 mingw32-make   # Windows with MinGW
 ```
 
-* **Optional:** Additional or custom libraries can be added during compilation by editing line 11 in the Makefile:
+* **Optional:** Additional or custom libraries can be linked during compilation by editing line 11 in the Makefile:
 
 ```makefile
 CUSTOM_LIBS :=
