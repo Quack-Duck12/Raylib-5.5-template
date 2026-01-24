@@ -171,7 +171,6 @@ eg.
 #define BEIGE                   CLITERAL(Color){ 245, 245, 220, 255 }
 #define SOFT_BEIGE              CLITERAL(Color){ 250, 240, 230, 255 }
 #define ANTIQUEWHITE            CLITERAL(Color){ 250, 235, 215, 255 }
-#define LINEN                   CLITERAL(Color){ 250, 240, 230, 255 }
 #define OLD_LACE                CLITERAL(Color){ 253, 245, 230, 255 }
 #define PEARL                   CLITERAL(Color){ 240, 248, 255, 255 }
 #define WHITESMOKE              CLITERAL(Color){ 245, 245, 245, 255 }
