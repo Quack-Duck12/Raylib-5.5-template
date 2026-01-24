@@ -25,6 +25,14 @@ make           # Linux or Windows with MSYS/MinGW
 mingw32-make   # Windows with MinGW
 ```
 
+* **Optional:** Additional or custom libraries can be added during compilation by editing line 11 in the Makefile:
+
+```makefile
+CUSTOM_LIBS :=
+```
+
+and adding the library flags.
+
 ## Directory Structure
 
 ```
@@ -106,8 +114,10 @@ winget install --id=MartinStorsjo.LLVM-MinGW.UCRT -e
 
 ```c
 #include "raylib.h"
-#include "raylib_colors_plus.h"
+#include "raylib_colors_plus.h" // optional
 ```
+
+* Replace `RAYWHITE` with new colors like `OFFWHITE` or others provided in the addon.
 
 ## Credits & Resources
 
