@@ -58,7 +58,7 @@ LDFLAGS := $(COMMON_LDFLAGS) $(PLATFORM_LIBS)
 # ========================
 # Build mode selection
 # ========================
-MODE ?= make
+MODE ?= release
 ifeq ($(MODE),debug)
     BUILD_TYPE := DEBUG (_DEBUG)
     CFLAGS     := -Wall -Werror -Og -g -D_DEBUG
