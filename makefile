@@ -165,7 +165,7 @@ build-info:
 $(TARGET): $(OBJECTS)
 	@$(BLANK_CMD)
 	@echo Linking...
-    $(LINKER) $(OBJECTS) -o "$(TARGET)" $(LDFLAGS)
+	$(LINKER) $(OBJECTS) $(LDFLAGS) -o "$(TARGET)"
 
 # ========================
 # Compile rules
