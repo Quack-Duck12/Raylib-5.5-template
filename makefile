@@ -19,29 +19,18 @@ CXX_STD ?= c++17 # C++ standard (c++98, c++11, c++14, c++17, c++20, c++23)
 # ========================
 # Configurable compiler flags (true/false)
 # ========================
-WALL      ?= true  # Enable all common warnings (-Wall)
-WERROR    ?= true  # Treat warnings as errors (-Werror)
-WEXTRA    ?= false # Enable extra warnings beyond -Wall (-Wextra)
-WPEDANTIC ?= false # Enforce strict ISO C/C++ compliance (-Wpedantic)
-WSHADOW   ?= false # Warn when a local variable shadows another variable (-Wshadow)
+WALL      := $(or $(WALL),true)   # Enable all common warnings (-Wall)
+WERROR    := $(or $(WERROR),true) # Treat warnings as errors (-Werror)
+WEXTRA    := $(or $(WEXTRA),true) # Enable extra warnings beyond -Wall (-Wextra)
+WPEDANTIC := $(or $(WPEDANTIC),false) # Enforce strict ISO C/C++ compliance (-Wpedantic)
+WSHADOW   := $(or $(WSHADOW),false) # Warn when a local variable shadows another variable (-Wshadow)
 
 # Build the warning flags
-WARNING_FLAGS :=
-ifeq ($(WALL),true)
-    WARNING_FLAGS += -Wall
-endif
-ifeq ($(WERROR),true)
-    WARNING_FLAGS += -Werror
-endif
-ifeq ($(WEXTRA),true)
-    WARNING_FLAGS += -Wextra
-endif
-ifeq ($(WPEDANTIC),true)
-    WARNING_FLAGS += -Wpedantic
-endif
-ifeq ($(WSHADOW),true)
-    WARNING_FLAGS += -Wshadow
-endif
+WARNING_FLAGS := $(if $(filter true,$(WALL)),-Wall) \
+                 $(if $(filter true,$(WERROR)),-Werror) \
+                 $(if $(filter true,$(WEXTRA)),-Wextra) \
+                 $(if $(filter true,$(WPEDANTIC)),-Wpedantic) \
+                 $(if $(filter true,$(WSHADOW)),-Wshadow)
 
 # Build the standard flags
 STD_FLAGS := -std=$(C_STD)
@@ -66,8 +55,13 @@ ifeq ($(PLATFORM),Unknown)
 $(error Unsupported platform: $(UNAME_S))
 endif
 
-# OS-specific object directory
-OBJ_DIR := $(OBJ_BASE_DIR)/$(PLATFORM)
+# ========================
+# Build mode default
+# ========================
+MODE ?= release
+
+# OS-specific object directory with build mode
+OBJ_DIR := $(OBJ_BASE_DIR)/$(PLATFORM)/$(MODE)
 
 # ========================
 # OS-specific shell commands
@@ -75,15 +69,13 @@ OBJ_DIR := $(OBJ_BASE_DIR)/$(PLATFORM)
 ifeq ($(PLATFORM),Windows)
     TARGET := $(TARGET_BASE).exe
     MKDIR_CMD  = if not exist "$(OBJ_DIR)" mkdir "$(OBJ_DIR)"
-    RMDIR_CMD  = if exist "$(OBJ_BASE_DIR)" rmdir /s /q "$(OBJ_BASE_DIR)"
     RMEXE_CMD  = if exist "$(TARGET)" del /q "$(TARGET)"
     RUN_CMD    = "$(CURDIR)/$(TARGET)"
     BLANK_CMD  = echo.
     PLATFORM_LIBS := -lopengl32 -lgdi32 -lwinmm
-else  # Linux
+else
     TARGET := $(TARGET_BASE)
     MKDIR_CMD  = mkdir -p "$(OBJ_DIR)"
-    RMDIR_CMD  = rm -rf "$(OBJ_BASE_DIR)"
     RMEXE_CMD  = rm -f "$(TARGET)"
     RUN_CMD    = "$(CURDIR)/$(TARGET)"
     BLANK_CMD  = echo
@@ -100,16 +92,13 @@ LDFLAGS := $(COMMON_LDFLAGS) $(PLATFORM_LIBS)
 # ========================
 # Build mode selection
 # ========================
-MODE ?= release
 ifeq ($(MODE),debug)
-    BUILD_TYPE := DEBUG (_DEBUG)
-    CFLAGS     := $(WARNING_FLAGS) -Og -g -D_DEBUG
-    CXXFLAGS   := $(WARNING_FLAGS) -Og -g -D_DEBUG
+    CFLAGS   := $(STD_FLAGS) $(WARNING_FLAGS) -Og -g -D_DEBUG
+    CXXFLAGS := $(CXX_STD_FLAGS) $(WARNING_FLAGS) -Og -g -D_DEBUG
 endif
 ifeq ($(MODE),release)
-    BUILD_TYPE := RELEASE
-    CFLAGS     := $(WARNING_FLAGS) -O2 -DNDEBUG
-    CXXFLAGS   := $(WARNING_FLAGS) -O2 -DNDEBUG
+    CFLAGS   := $(STD_FLAGS) $(WARNING_FLAGS) -O2 -DNDEBUG
+    CXXFLAGS := $(CXX_STD_FLAGS) $(WARNING_FLAGS) -O2 -DNDEBUG
 endif
 
 # ========================
@@ -135,9 +124,9 @@ endif
 # ========================
 all: build
 
-build: info $(TARGET)
+build: build-info $(TARGET)
 
-debug: clean
+debug:
 	@$(MAKE) MODE=debug build
 
 release:
@@ -145,37 +134,48 @@ release:
 
 run: build
 	@$(BLANK_CMD)
-	@echo "Running $(TARGET)..."
+	@echo Running $(TARGET)...
 	@$(RUN_CMD)
 
 debug-run: debug
 	@$(BLANK_CMD)
-	@echo "Running debug $(TARGET)..."
+	@echo Running debug $(TARGET)...
 	@$(RUN_CMD)
 
 info:
 	@$(BLANK_CMD)
-	@echo "============================"
-	@echo "Building: $(BUILD_TYPE)"
-	@echo "Platform: $(PLATFORM)"
-	@echo "Object Dir: $(OBJ_DIR)"
-	@echo "Warning Flags: $(WARNING_FLAGS)"
-	@echo "============================"
+	@echo ============================
+	@echo Platform: $(PLATFORM)
+	@echo C Standard: $(C_STD)
+	@echo C++ Standard: $(CXX_STD)
+	@echo Warning Flags: $(WARNING_FLAGS)
+	@echo ============================
+
+build-info:
+	@$(BLANK_CMD)
+	@echo ============================
+	@echo Build Mode: $(MODE)
+	@echo Platform: $(PLATFORM)
+	@echo C Standard: $(C_STD)
+	@echo C++ Standard: $(CXX_STD)
+	@echo Warning Flags: $(WARNING_FLAGS)
+	@echo Object Dir: $(OBJ_DIR)
+	@echo ============================
 
 $(TARGET): $(OBJECTS)
 	@$(BLANK_CMD)
-	@echo "Linking..."
-	$(LINKER) $(OBJECTS) $(LDFLAGS) -o "$(TARGET)"
+	@echo Linking...
+    $(LINKER) $(OBJECTS) -o "$(TARGET)" $(LDFLAGS)
 
 # ========================
 # Compile rules
 # ========================
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	@echo "Compiling C $< ..."
+	@echo Compiling C $< ...
 	$(CC) $(CFLAGS) $(INCLUDES) -c "$<" -o "$@"
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
-	@echo "Compiling C++ $< ..."
+	@echo Compiling C++ $< ...
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c "$<" -o "$@"
 
 $(OBJ_DIR):
@@ -186,14 +186,24 @@ $(OBJ_DIR):
 # ========================
 clean:
 	@echo "Cleaning build artifacts for $(PLATFORM)..."
-	@$(RMDIR_CMD)
-	@$(RMEXE_CMD)
+ifeq ($(PLATFORM),Windows)
+	@if exist "$(OBJ_BASE_DIR)\$(PLATFORM)" rmdir /s /q "$(OBJ_BASE_DIR)\$(PLATFORM)" 2>nul
+	@ if exist "$(OBJ_BASE_DIR)" ( \
+        dir /b /a-d "$(OBJ_BASE_DIR)" 2>nul | findstr . >nul || \
+        rmdir /q "$(OBJ_BASE_DIR)" 2>nul \
+      )
+	@ if exist "$(TARGET)" del /q /f "$(TARGET)" 2>nul
+else
+	@ rm -rf "$(OBJ_BASE_DIR)/$(PLATFORM)" 2>/dev/null
+	@ rmdir "$(OBJ_BASE_DIR)" 2>/dev/null || true
+	@ rm -f "$(TARGET)" 2>/dev/null
+endif
 	@echo "Done."
 
 clean-output:
-	@echo "Removing output file..."
+	@echo Removing output file for $(PLATFORM)...
 	@$(RMEXE_CMD)
-	@echo "Output file removed."
+	@echo Done.
 
 purge:
 	@echo "NUKING all build artifacts (all OS outputs)..."
@@ -206,26 +216,26 @@ else
 	@rm -f "$(TARGET_BASE)"
 	@rm -f "$(TARGET_BASE).exe"
 endif
-	@echo "All build outputs removed."
+	@echo All build outputs removed.
 
 help:
 	@$(BLANK_CMD)
-	@echo "Available targets:"
-	@echo "  make / make release  - Build in release mode (-O2 -DNDEBUG)"
-	@echo "  make debug           - Build in debug mode (-Og -g -D_DEBUG)"
-	@echo "  make run             - Build and run (release mode)"
-	@echo "  make debug-run       - Build and run (debug mode)"
-	@echo "  make clean           - Remove objects + exe for current platform"
-	@echo "  make clean-output    - Remove only the executable"
-	@echo "  make purge           - Remove all build artifacts (all platforms)"
-	@echo "  make info            - Show build configuration"
+	@echo Available targets:
+	@echo   make / make release  - Build in release mode (-O2 -DNDEBUG)
+	@echo   make debug           - Build in debug mode (-Og -g -D_DEBUG)
+	@echo   make run             - Build and run (release mode)
+	@echo   make debug-run       - Build and run (debug mode)
+	@echo   make clean           - Remove current OS/mode objects + exe
+	@echo   make clean-output    - Remove only OS executable
+	@echo   make purge           - Remove all objects and all executables
+	@echo   make info            - Show build configuration
 	@$(BLANK_CMD)
-	@echo "Configurable flags (set to true/false):"
-	@echo "  WALL=$(WALL)         - Enable -Wall warnings"
-	@echo "  WERROR=$(WERROR)     - Treat warnings as errors"
-	@echo "  WEXTRA=$(WEXTRA)     - Enable -Wextra warnings"
-	@echo "  WPEDANTIC=$(WPEDANTIC) - Enable -Wpedantic"
-	@echo "  WSHADOW=$(WSHADOW)   - Enable -Wshadow"
+	@echo Configurable flags (set to true/false):
+	@echo   WALL=$(WALL)         - Enable -Wall warnings
+	@echo   WERROR=$(WERROR)     - Treat warnings as errors
+	@echo   WEXTRA=$(WEXTRA)     - Enable -Wextra warnings
+	@echo   WPEDANTIC=$(WPEDANTIC) - Enable -Wpedantic
+	@echo   WSHADOW=$(WSHADOW)   - Enable -Wshadow
 	@$(BLANK_CMD)
-	@echo "Example: make WERROR=false WEXTRA=true"
+	@echo Example: make WERROR=false WEXTRA=true
 	@$(BLANK_CMD)

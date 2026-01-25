@@ -11,6 +11,10 @@ int main(){
 
             ClearBackground(OFFWHITE); // replace with RAYWHITE if not using raylib_colors_plus.h
 
+            #ifdef _DEBUG
+            DrawFPS(10, 10);
+            #endif
+
         EndDrawing();
     }
 
