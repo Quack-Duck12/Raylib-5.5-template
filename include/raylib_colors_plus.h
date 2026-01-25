@@ -168,12 +168,10 @@ eg.
 #define WARM_OFFWHITE           CLITERAL(Color){ 255, 251, 240, 255 }
 #define CREAM                   CLITERAL(Color){ 255, 253, 208, 255 }
 #define LIGHT_CREAM             CLITERAL(Color){ 254, 255, 237, 255 }
-#define BEIGE                   CLITERAL(Color){ 245, 245, 220, 255 }
 #define SOFT_BEIGE              CLITERAL(Color){ 250, 240, 230, 255 }
 #define ANTIQUEWHITE            CLITERAL(Color){ 250, 235, 215, 255 }
 #define OLD_LACE                CLITERAL(Color){ 253, 245, 230, 255 }
 #define PEARL                   CLITERAL(Color){ 240, 248, 255, 255 }
-#define WHITESMOKE              CLITERAL(Color){ 245, 245, 245, 255 }
 
 #define OFFWHITE_HALF           CLITERAL(Color){ 250, 249, 246, 128 }
 #define OFFWHITE_ALPHA_64       CLITERAL(Color){ 250, 249, 246,  64 }
