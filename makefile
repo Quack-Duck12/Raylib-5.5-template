@@ -8,7 +8,9 @@ SRC_DIR := src
 OBJ_BASE_DIR := obj
 
 # Add your custom libraries here (e.g., -lglfw3 -lbox2d)
-CUSTOM_LIBS :=
+CUSTOM_LIBS  :=
+# Add your custom compiler flags here (e.g., -Wno-missing-field-initializers)
+CUSTOM_FLAGS :=
 
 # ========================
 # Language standard selection
@@ -93,12 +95,12 @@ LDFLAGS := $(COMMON_LDFLAGS) $(PLATFORM_LIBS)
 # Build mode selection
 # ========================
 ifeq ($(MODE),debug)
-    CFLAGS   := $(STD_FLAGS) $(WARNING_FLAGS) -Og -g -D_DEBUG
-    CXXFLAGS := $(CXX_STD_FLAGS) $(WARNING_FLAGS) -Og -g -D_DEBUG
+    CFLAGS   := $(STD_FLAGS) $(WARNING_FLAGS) $(CUSTOM_FLAGS) -Og -g -D_DEBUG
+    CXXFLAGS := $(CXX_STD_FLAGS) $(WARNING_FLAGS) $(CUSTOM_FLAGS) -Og -g -D_DEBUG
 endif
 ifeq ($(MODE),release)
-    CFLAGS   := $(STD_FLAGS) $(WARNING_FLAGS) -O2 -DNDEBUG
-    CXXFLAGS := $(CXX_STD_FLAGS) $(WARNING_FLAGS) -O2 -DNDEBUG
+    CFLAGS   := $(STD_FLAGS) $(WARNING_FLAGS) $(CUSTOM_FLAGS) -O2 -DNDEBUG
+    CXXFLAGS := $(CXX_STD_FLAGS) $(WARNING_FLAGS) $(CUSTOM_FLAGS) -O2 -DNDEBUG
 endif
 
 # ========================
