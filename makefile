@@ -9,7 +9,7 @@ OBJ_BASE_DIR := obj
 
 # Add your custom libraries here (e.g., -lglfw3 -lbox2d)
 CUSTOM_LIBS  :=
-# Add your custom compiler flags here (e.g., -Wno-missing-field-initializers)
+# Add your custom compiler flags here (e.g., -Wno-missing-field-initializers for using raymath.h in c++)
 CUSTOM_FLAGS :=
 
 # ========================
